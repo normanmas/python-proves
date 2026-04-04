@@ -1,1 +1,107 @@
-# Activitat per practicar la categorització emprant K-Means
+# Activitat per practicar la categoritzacio emprant K-Means
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from pathlib import Path
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+
+
+# Assignar la ruta de l'arxiu
+directori_arrel = Path(__file__).resolve().parents[2]
+ruta_arxiu = directori_arrel / "data" / "raw" / "poblacions.csv"
+
+# Carregar les dades del CSV
+df = pd.read_csv(ruta_arxiu, sep=";", decimal=",")
+print(f"S'ha carregat correctament l'arxiu de dades:\n{ruta_arxiu}\n")
+print(f"Capcalera del dataset:\n{df.head()}\n")
+
+# Preparar la matriu numerica per al clustering
+X = df[["Població", "Superfície"]].to_numpy()
+print("S'han copiat Població i Superfície a una matriu de Numpy.")
+print(f"Primers valors:\n{X[:4, :]}\n")
+
+# Normalitzar les dades per evitar que la poblacio domini la distancia
+print("Es normalitzen les dades per compensar la diferencia d'escala.")
+scaler = StandardScaler()
+X_normalitzada = scaler.fit_transform(X)
+
+# Definir i normalitzar els centroides inicials
+print("Centroides inicials:")
+print("Valencia = p1 = (739014, 134.6)")
+print("Talteull = p2 = (851, 53.5)")
+print("L'Alcora = p3 = (9106, 94.9)\n")
+
+centroides_inicials = np.array(
+    [
+        [739014, 134.6],  # Valencia
+        [851, 53.5],      # Talteull
+        [9106, 94.9],     # L'Alcora
+    ],
+    dtype=float,
+)
+centroides_inicials_escalats = scaler.transform(centroides_inicials)
+
+# Executar K-Means
+model = KMeans(
+    n_clusters=3,
+    init=centroides_inicials_escalats,
+    n_init=1,
+    random_state=42,
+)
+model.fit(X_normalitzada)
+
+# Afegir el cluster a la taula original
+df["Cluster"] = model.labels_
+
+# Recuperar els centroides finals en unitats reals
+centroides_finals = scaler.inverse_transform(model.cluster_centers_)
+df_resultats = df[["Municipi", "Població", "Superfície", "Cluster"]].sort_values(
+    by=["Cluster", "Població"],
+    ascending=[True, False],
+)
+
+print("Resultats de la classificacio:")
+print(df_resultats.to_string(index=False))
+print("\nCentroides finals:")
+
+for i, centre in enumerate(centroides_finals):
+    print(
+        f"Cluster {i}: poblacio = {centre[0]:.2f}, superficie = {centre[1]:.2f}"
+    )
+
+# Representacio grafica en escales reals
+plt.figure(figsize=(9, 6))
+plt.scatter(
+    df["Població"],
+    df["Superfície"],
+    c=df["Cluster"],
+    cmap="viridis",
+    s=90,
+)
+plt.scatter(
+    centroides_finals[:, 0],
+    centroides_finals[:, 1],
+    color="red",
+    marker="X",
+    s=220,
+    label="Centroides finals",
+)
+
+for _, fila in df.iterrows():
+    plt.annotate(
+        fila["Municipi"],
+        (fila["Població"], fila["Superfície"]),
+        textcoords="offset points",
+        xytext=(5, 5),
+        fontsize=8,
+    )
+
+plt.xlabel("Població")
+plt.ylabel("Superfície")
+plt.title("Agrupacio de municipis amb K-Means")
+plt.grid(True)
+plt.legend()
+plt.tight_layout()
+plt.show()

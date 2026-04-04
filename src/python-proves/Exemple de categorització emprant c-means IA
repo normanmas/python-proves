@@ -1,0 +1,47 @@
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from pathlib import Path
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+
+def main():
+    df = pd.read_csv(
+        Path(__file__).resolve().parents[2] / "data" / "raw" / "poblacions.csv",
+        sep=";",
+        decimal=",",
+    )
+    X = df[["Població", "Superfície"]].to_numpy()
+    scaler = StandardScaler()
+    Xn = scaler.fit_transform(X)
+
+    model = KMeans(
+        n_clusters=3,
+        init=scaler.transform(np.array([[739014, 134.6], [851, 53.5], [9106, 94.9]])),
+        n_init=1,
+        random_state=42,
+    ).fit(Xn)
+
+    df["Cluster"] = model.labels_
+    centres = scaler.inverse_transform(model.cluster_centers_)
+
+    print(df[["Municipi", "Població", "Superfície", "Cluster"]].sort_values(["Cluster", "Població"], ascending=[True, False]).to_string(index=False))
+    print("\nCentroides finals:")
+    for i, (poblacio, superficie) in enumerate(centres):
+        print(f"Cluster {i}: poblacio = {poblacio:.2f}, superficie = {superficie:.2f}")
+
+    plt.figure(figsize=(9, 6))
+    plt.scatter(df["Població"], df["Superfície"], c=df["Cluster"], cmap="viridis", s=90)
+    plt.scatter(centres[:, 0], centres[:, 1], color="red", marker="X", s=220, label="Centroides finals")
+    for _, fila in df.iterrows():
+        plt.annotate(fila["Municipi"], (fila["Població"], fila["Superfície"]), xytext=(5, 5), textcoords="offset points", fontsize=8)
+    plt.xlabel("Població")
+    plt.ylabel("Superfície")
+    plt.title("Agrupacio de municipis amb K-Means")
+    plt.grid(True)
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
+
+if __name__ == "__main__":
+    main()

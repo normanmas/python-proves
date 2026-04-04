@@ -1,12 +1,12 @@
-Poblacio,Superficie,Densitat,Codi postal,Industria,Metro
-l'Alcora,94.9,MB,12110,ceràmica,no
-València,134.6,A,46012,,sí
-Barcelona,97.6,MA,8002,,sí
-Inca,58.3,B,7300,calçat,no
-Elda,45.8,M,3600,calçat,no
-Almussafes,10.8,M,46440,cotxes,no
-Castalla,114.6,MB,3420,joguines,no
-Ibi,62.5,B,3440,joguines,no
-Sant Sadurní d'Anoia,18.7,B,8770,vi,no
-Taltellull,53.5,MB,66720,vi,no
-Maó,117.2,B,7701,formatge,no
+Municipi;Població;Superfície;Densitat;Codi postal;Indústria;Metro
+l'Alcora;9106;94,9;MB;12110;ceràmica;no
+València;739014;134,6;A;46012;;sí
+Barcelona;1496266;97,6;MA;08002;;sí
+Inca;22402;58,3;B;07300;calçat;no
+Elda;51501;45,8;M;03600;calçat;no
+Almussafes;7256;10,8;M;46440;cotxes;no
+Castalla;7631;114,6;MB;03420;joguines;no
+Ibi;21293;62,5;B;03440;joguines;no
+Sant Sadurní d'Anoia;9539;18,7;B;08770;vi;no
+Talteüll;851;53,5;MB;66720;vi;no
+Maó;23189;117,2;B;07701;formatge;no
